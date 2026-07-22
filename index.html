@@ -1032,8 +1032,10 @@ function NavBar({
   return /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
-      justifyContent: "space-between",
+      justifyContent: "center",
       alignItems: "center",
+      gap: 18,
+      direction: "ltr",
       padding: "12px 22px 16px"
     }
   }, imageButton(NAV_IMAGES.forward, "המשך", nextEnabled, onNext), imageButton(NAV_IMAGES.back, "חזרה", backEnabled, onBack));
@@ -1294,7 +1296,7 @@ function SimpleCompoundScreen({ cfg, onDone, done, award, showFb, sound }) {
     if (complete || chosen.includes(id)) return;
     const next = [...chosen, id];
     setChosen(next);
-    if (next.length === 2) {
+    if (next.length === cfg.correct.length) {
       const right = [...next].sort().join("|") === [...cfg.correct].sort().join("|");
       if (!right) return resetWrong();
       setTimeout(() => {
@@ -1310,7 +1312,7 @@ function SimpleCompoundScreen({ cfg, onDone, done, award, showFb, sound }) {
     }
   };
   return /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(ScreenTitle, {
-    sub: complete ? "היסודות איבדו את התכונות העצמאיות שלהם ויצרו תרכובת חדשה." : "גררו שני יסודות אל קערת הערבוב כדי ליצור חומר חדש."
+    sub: complete ? "האטומים התחברו ויצרו תרכובת חדשה." : `גררו אל הקערה את כל האטומים הדרושים ליצירת ${cfg.formula}.`
   }, cfg.title), /*#__PURE__*/React.createElement("div", {
     className: "simple-compound-grid",
     style: {
@@ -1497,47 +1499,7 @@ function CreationScreen({
       background: cfg.flashColor,
       animation: "flash .7s ease"
     }
-  }), !reacted ? /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Pile, {
-    label: cfg.a.label,
-    sym: cfg.a.sym,
-    color: cfg.a.color
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 38,
-      color: AMIT.midBlue,
-      fontWeight: 800
-    }
-  }, "+"), /*#__PURE__*/React.createElement(Pile, {
-    label: cfg.b.label,
-    sym: cfg.b.sym,
-    color: cfg.b.color
-  })) : /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: "center",
-      animation: "popIn .5s ease both"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 150,
-      height: 150,
-      borderRadius: 24,
-      background: cfg.product.color,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: "0 auto 12px",
-      color: cfg.product.text || "#fff",
-      fontWeight: 800,
-      fontSize: 34,
-      boxShadow: "0 4px 12px rgba(0,0,0,.35)"
-    }
-  }, cfg.product.sym), /*#__PURE__*/React.createElement("div", {
-    style: {
-      color: "#fff",
-      fontWeight: 800,
-      fontSize: 20
-    }
-  }, cfg.product.label))), !reacted && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(CreationExperimentVisual, { cfg: cfg, reacted: reacted, flash: flash })), !reacted && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "center",
@@ -1628,6 +1590,35 @@ function CreationScreen({
   })))), allCellsRight && /*#__PURE__*/React.createElement(DoneBadge, {
     text: `התכונות השתנו לגמרי! ל־${cfg.product.label} תכונות חדשות, שונות מהיסודות שיצרו אותו.`
   })));
+}
+function CreationExperimentVisual({ cfg, reacted, flash }) {
+  const isCopper = cfg.id === "cus";
+  return /*#__PURE__*/React.createElement("div", {
+    style: { display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 34, width: "100%", position: "relative", zIndex: 2 }
+  }, isCopper ? /*#__PURE__*/React.createElement(React.Fragment, null,
+    /*#__PURE__*/React.createElement("div", { style: { textAlign: "center" } },
+      /*#__PURE__*/React.createElement("div", { style: { width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: "linear-gradient(#e6c229,#b99600)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.18)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue } }, "גופרית צהובה")
+    ),
+    /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 150, height: 190 } },
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 48, top: 8, width: 54, height: 128, border: "4px solid #9eb0c1", borderTop: "none", borderRadius: "0 0 26px 26px", transform: "rotate(-8deg)", background: reacted ? "linear-gradient(#35343a,#111218)" : "linear-gradient(#e5bb2d 0 45%,#b96a3c 45% 100%)", transition: "background .5s" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 54, bottom: 0, width: 42, height: 70, background: "linear-gradient(#ffdb55,#e95d25)", clipPath: "polygon(50% 0,100% 70%,72% 100%,28% 100%,0 70%)", filter: flash ? "drop-shadow(0 0 18px white)" : "drop-shadow(0 0 8px #ff9b3d)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: -2, left: 18, right: 18, height: 10, borderRadius: 8, background: "#52677b" } })
+    ),
+    /*#__PURE__*/React.createElement("div", { style: { textAlign: "center" } },
+      /*#__PURE__*/React.createElement("div", { style: { width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: reacted ? "#24242a" : "linear-gradient(#cf7b4b,#9d4f28)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.2)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue } }, reacted ? "גופרת נחושת שחורה" : "נחושת כתומה")
+    )
+  ) : /*#__PURE__*/React.createElement(React.Fragment, null,
+    /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 280, height: 190 } },
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 28, left: 28, width: 185, height: 10, borderRadius: 8, background: reacted ? "#f7f7f7" : "linear-gradient(90deg,#aeb6c0,#eef1f4,#9ca6b1)", transform: "rotate(-11deg)", boxShadow: reacted ? "0 0 24px 12px rgba(255,255,255,.95)" : "none", transition: "all .45s" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 18, right: 16, width: 78, height: 28, border: "8px solid #44586c", borderLeft: "none", borderRadius: "0 18px 18px 0" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 92, bottom: 18, width: 50, height: 82, background: "linear-gradient(#fff56b,#ff9a2e,#e34f22)", clipPath: "polygon(50% 0,100% 72%,70% 100%,30% 100%,0 72%)", filter: flash ? "drop-shadow(0 0 26px white)" : "drop-shadow(0 0 9px #ff9b3d)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: 6, left: 68, width: 98, height: 24, borderRadius: "12px 12px 4px 4px", background: "#52677b" } }),
+      reacted && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 5, bottom: 3, width: 86, height: 40, borderRadius: "50% 50% 14px 14px", background: "#f5f5f2", boxShadow: "inset 0 -7px 10px rgba(0,0,0,.12)" } })
+    ),
+    /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue, fontSize: 19, minWidth: 190 } }, reacted ? "נוצרה אבקה לבנה של מגנזיום חמצני" : "פס מגנזיום נשרף באור לבן חזק")
+  ));
 }
 function Pile({
   label,
@@ -1773,56 +1764,33 @@ function DecompScreen({
 
 /* water electrolysis visual */
 function WaterVisual(done, anim) {
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  const bubbles = (side, count, color) => [...Array(count)].map((_, i) => /*#__PURE__*/React.createElement("div", {
+    key: `${side}-${i}`,
     style: {
-      position: "relative",
-      width: 120,
-      height: 150,
-      border: "4px solid #9fc0dd",
-      borderTop: "none",
-      borderRadius: "0 0 16px 16px",
-      background: "linear-gradient(#bfe0f5,#8fc7ec)",
-      overflow: "hidden"
+      position: "absolute", bottom: 18 + (i % 4) * 18, left: side === "left" ? 30 + (i % 3) * 9 : 126 + (i % 2) * 10, width: 7 + i % 3, height: 7 + i % 3, borderRadius: "50%", border: `2px solid ${color}`, background: "rgba(255,255,255,.75)", animation: `rise 1.25s ${i * .09}s infinite ease-in`
     }
-  }, (anim || done) && [...Array(10)].map((_, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      position: "absolute",
-      bottom: 6 + i % 3 * 12,
-      left: 10 + i * 10,
-      width: 7,
-      height: 7,
-      borderRadius: "50%",
-      background: "rgba(255,255,255,.8)",
-      animation: `rise 1s ${i * .1}s infinite ease-in`
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: "absolute",
-      top: 6,
-      insetInlineStart: 6,
-      fontWeight: 800,
-      color: "#2a6a9c",
-      fontSize: 13
-    }
-  }, "מים")), done && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 14,
-      alignItems: "flex-end",
-      animation: "popIn .5s ease both"
-    }
-  }, /*#__PURE__*/React.createElement(GasTube, {
-    label: "H₂",
-    fill: 80,
-    color: "#cfe8ff",
-    note: "מימן"
-  }), /*#__PURE__*/React.createElement(GasTube, {
-    label: "O₂",
-    fill: 42,
-    color: "#ffd9d3",
-    note: "חמצן"
-  })));
+  }));
+  return /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 20, width: "100%" } },
+    /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 220, height: 180 } },
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 18, right: 18, bottom: 0, height: 132, border: "4px solid #9fc0dd", borderTop: "none", borderRadius: "0 0 18px 18px", background: "linear-gradient(to bottom,rgba(255,255,255,.35) 0 18%,#a9d7f2 18% 100%)", overflow: "hidden" } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 8, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#2a6a9c" } }, "מים"),
+        (anim || done) && bubbles("left", 12, "#62aee8"),
+        (anim || done) && bubbles("right", 6, "#e87667")
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 58, top: 18, width: 12, height: 118, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 58, top: 18, width: 12, height: 118, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #d04d45", borderLeft: "4px solid #d04d45", borderRadius: "14px 0 0 0" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #263d59", borderRight: "4px solid #263d59", borderRadius: "0 14px 0 0" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 36, top: -6, fontSize: 13, fontWeight: 800, color: "#d04d45" } }, "+"),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 36, top: -6, fontSize: 16, fontWeight: 800, color: "#263d59" } }, "−"),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 35, bottom: 5, fontSize: 12, fontWeight: 800, color: "#235d8a" } }, "H₂"),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 37, bottom: 5, fontSize: 12, fontWeight: 800, color: "#a54238" } }, "O₂")
+    ),
+    done && /*#__PURE__*/React.createElement("div", { style: { display: "flex", gap: 14, alignItems: "flex-end", animation: "popIn .5s ease both" } },
+      /*#__PURE__*/React.createElement(GasTube, { label: "H₂", fill: 80, color: "#cfe8ff", note: "מימן — פי 2" }),
+      /*#__PURE__*/React.createElement(GasTube, { label: "O₂", fill: 42, color: "#ffd9d3", note: "חמצן" })
+    )
+  );
 }
 function GasTube({
   label,
@@ -2531,7 +2499,7 @@ function ScoreCard({
    ===================================================================== */
 const SIMPLE_COMPOUNDS = [{
   id: "nacl",
-  title: "מוותרים על עצמאות 1: מלח בישול",
+  title: "יצירת תרכובת: מלח בישול",
   correct: ["na", "cl"],
   product: "מלח בישול",
   formula: "NaCl",
@@ -2539,25 +2507,25 @@ const SIMPLE_COMPOUNDS = [{
   bank: [{ id: "na", label: "נתרן", sym: "Na", color: "#9aa6b2" }, { id: "cl", label: "כלור", sym: "Cl", color: "#7bc96f" }, { id: "o", label: "חמצן", sym: "O", color: "#e15241" }, { id: "c", label: "פחמן", sym: "C", color: "#3a3a3a" }]
 }, {
   id: "h2o-simple",
-  title: "מוותרים על עצמאות 2: מים",
-  correct: ["h", "o"],
+  title: "יצירת תרכובת: מים",
+  correct: ["h1", "h2", "o"],
   product: "מים",
   formula: "H₂O",
   productAtoms: ["H", "O", "H"],
-  bank: [{ id: "h", label: "מימן", sym: "H", color: "#b9c2cf" }, { id: "o", label: "חמצן", sym: "O", color: "#e15241" }, { id: "na", label: "נתרן", sym: "Na", color: "#9aa6b2" }, { id: "cl", label: "כלור", sym: "Cl", color: "#7bc96f" }]
+  bank: [{ id: "h1", label: "מימן", sym: "H", color: "#b9c2cf" }, { id: "h2", label: "מימן", sym: "H", color: "#b9c2cf" }, { id: "o", label: "חמצן", sym: "O", color: "#e15241" }, { id: "na", label: "נתרן", sym: "Na", color: "#9aa6b2" }]
 }, {
   id: "co2-simple",
-  title: "מוותרים על עצמאות 3: פחמן דו־חמצני",
-  correct: ["c", "o"],
+  title: "יצירת תרכובת: פחמן דו־חמצני",
+  correct: ["c", "o1", "o2"],
   product: "פחמן דו־חמצני",
   formula: "CO₂",
   productAtoms: ["O", "C", "O"],
-  bank: [{ id: "c", label: "פחמן", sym: "C", color: "#3a3a3a" }, { id: "o", label: "חמצן", sym: "O", color: "#e15241" }, { id: "h", label: "מימן", sym: "H", color: "#b9c2cf" }, { id: "s", label: "גופרית", sym: "S", color: "#e6c229" }]
+  bank: [{ id: "c", label: "פחמן", sym: "C", color: "#3a3a3a" }, { id: "o1", label: "חמצן", sym: "O", color: "#e15241" }, { id: "o2", label: "חמצן", sym: "O", color: "#e15241" }, { id: "h", label: "מימן", sym: "H", color: "#b9c2cf" }]
 }];
 
 const CREATION_1 = {
   id: "cus",
-  title: "הרכבה 1: יצירת גופרת נחושת",
+  title: "יצירת תרכובת: גופרת נחושת",
   a: {
     label: "נחושת",
     sym: "Cu",
@@ -2589,7 +2557,7 @@ const CREATION_1 = {
 };
 const CREATION_2 = {
   id: "mgo",
-  title: "הרכבה 2: יצירת תחמוצת — מגנזיום חמצני",
+  title: "יצירת תרכובת: מגנזיום חמצני",
   a: {
     label: "מגנזיום",
     sym: "Mg",
@@ -2622,11 +2590,11 @@ const CREATION_2 = {
 };
 const DECOMP_WATER = {
   id: "water",
-  title: "פירוק 1: פירוק מים בחשמל (אלקטרוליזה)",
-  instruction: "גררו את החיבור לזרם החשמלי אל המים כדי לפרק אותם ליסודות.",
+  title: "פירוק תרכובת: מים באלקטרוליזה",
+  instruction: "גררו את מקור המתח אל החוטים. הזרם יעבור דרך שתי האלקטרודות שבתוך המים ויפרק את התרכובת.",
   tool: {
     id: "power",
-    label: "חיבור לזרם",
+    label: "מקור מתח",
     border: "#2badde",
     icon: /*#__PURE__*/React.createElement(Zap, {
       color: "#2badde",
@@ -2638,7 +2606,7 @@ const DECOMP_WATER = {
 };
 const DECOMP_SUGAR = {
   id: "sugar",
-  title: "פירוק 2: פירוק סוכר בחום",
+  title: "פירוק תרכובת: סוכר בחימום",
   instruction: "גררו את הלהבה אל מתחת למבחנת הסוכר כדי לחמם ולפרק אותו.",
   tool: {
     id: "flame",
