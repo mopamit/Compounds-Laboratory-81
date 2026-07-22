@@ -2110,7 +2110,10 @@ function BalanceScreen({
   const balanced = allFilled && elements.every(el => sumSide(cfg.left, el) === sumSide(cfg.right, el));
   const massL = mass(cfg.left),
     massR = mass(cfg.right);
-  const tilt = balanced ? 0 : Math.max(-11, Math.min(11, (massR - massL) * 0.5 + (massR > massL ? 3 : massR < massL ? -3 : 0)));
+  // במאזניים חזותיים: ערך חיובי מסובב עם כיוון השעון — הצד הימני יורד.
+  // לכן כאשר צד ימין כבד יותר הזווית חיובית, וכאשר צד שמאל כבד יותר היא שלילית.
+  const massDiff = massR - massL;
+  const tilt = balanced || massDiff === 0 ? 0 : Math.max(-9, Math.min(9, massDiff * 0.42 + (massDiff > 0 ? 2.5 : -2.5)));
   useEffect(() => {
     if (balanced && !solved) {
       setSolved(true);
@@ -2188,15 +2191,19 @@ function BalanceScreen({
     style: {
       background: "#eef4fb",
       borderRadius: 16,
-      padding: "8px 10px 14px",
-      overflow: "hidden"
+      padding: "12px 16px 16px",
+      overflowX: "auto",
+      overflowY: "hidden"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: "relative",
-      height: 210,
-      maxWidth: 680,
-      margin: "0 auto"
+      height: 245,
+      width: "100%",
+      maxWidth: 760,
+      minWidth: 620,
+      margin: "0 auto",
+      direction: "ltr"
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2217,8 +2224,8 @@ function BalanceScreen({
       transform: `translateX(-50%) rotate(${tilt}deg)`,
       transformOrigin: "center",
       transition: "transform .6s ease",
-      width: 440,
-      height: 9
+      width: 620,
+      height: 10
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2228,11 +2235,11 @@ function BalanceScreen({
       borderRadius: 4
     }
   }), /*#__PURE__*/React.createElement(Pan, {
-    side: "start",
+    side: "left",
     terms: cfg.left,
     coef: coef
   }), /*#__PURE__*/React.createElement(Pan, {
-    side: "end",
+    side: "right",
     terms: cfg.right,
     coef: coef
   })), /*#__PURE__*/React.createElement("div", {
@@ -2318,23 +2325,25 @@ function Pan({
     style: {
       position: "absolute",
       top: 0,
-      [side === "start" ? "insetInlineStart" : "insetInlineEnd"]: -6
+      [side === "left" ? "left" : "right"]: -2,
+      transform: "none",
+      width: 190
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       width: 3,
-      height: 42,
+      height: 58,
       background: "#5b6b7f",
       margin: "0 auto"
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
-      minWidth: 160,
-      minHeight: 60,
+      width: 190,
+      minHeight: 76,
       background: "#cbd6e2",
-      borderRadius: "0 0 60px 60px",
+      borderRadius: "0 0 78px 78px",
       border: "2px solid #9fb0c1",
-      padding: "8px 10px",
+      padding: "10px 12px",
       display: "flex",
       flexWrap: "wrap",
       gap: 2,
