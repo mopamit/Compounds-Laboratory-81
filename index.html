@@ -1450,17 +1450,31 @@ function CreationScreen({
   sound
 }) {
   const [reacted, setReacted] = useState(done);
+  const [reacting, setReacting] = useState(false);
   const [flash, setFlash] = useState(false);
   const [cells, setCells] = useState({}); // cellId -> value
   const [erred, setErred] = useState(false);
   const [shakeCell, setShakeCell] = useState(null);
   const [rewarded, setRewarded] = useState(done);
   const react = () => {
+    if (reacted || reacting) return;
+    if (cfg.id !== "cus") {
+      setFlash(true);
+      sound(true);
+      setTimeout(() => setFlash(false), 700);
+      setReacted(true);
+      showFb("תגובה החלה! ✨", true);
+      return;
+    }
+    setReacting(true);
     setFlash(true);
     sound(true);
-    setTimeout(() => setFlash(false), 700);
-    setReacted(true);
-    showFb("תגובה החלה! ✨", true);
+    setTimeout(() => setFlash(false), 900);
+    setTimeout(() => {
+      setReacted(true);
+      setReacting(false);
+      showFb("התגובה הושלמה! ✨", true);
+    }, 3000);
   };
   const allCellsRight = cfg.cells.every(c => cells[c.id] === c.answer);
   useEffect(() => {
@@ -1473,7 +1487,7 @@ function CreationScreen({
   }, [reacted, cells]); // eslint-disable-line
 
   return /*#__PURE__*/React.createElement(Card, null, /*#__PURE__*/React.createElement(ScreenTitle, {
-    sub: reacted ? "עכשיו גררו את התכונות הנכונות של התוצר אל הטבלה." : "גררו את מקור החום אל חומרי הגלם כדי להתחיל את התגובה."
+    sub: reacted ? "עכשיו גררו את התכונות הנכונות של התוצר אל הטבלה." : reacting ? "התבוננו בתהליך המתרחש בהדרגה..." : "גררו את מקור החום אל חומרי הגלם כדי להתחיל את התגובה."
   }, cfg.title), /*#__PURE__*/React.createElement(DropZone, {
     id: `react-${cfg.id}`,
     onDrop: () => {
@@ -1481,7 +1495,7 @@ function CreationScreen({
     },
     style: {
       position: "relative",
-      background: reacted ? "#20303f" : "#f2f6fb",
+      background: "#f2f6fb",
       borderRadius: 16,
       padding: "20px 12px",
       display: "flex",
@@ -1499,7 +1513,7 @@ function CreationScreen({
       background: cfg.flashColor,
       animation: "flash .7s ease"
     }
-  }), /*#__PURE__*/React.createElement(CreationExperimentVisual, { cfg: cfg, reacted: reacted, flash: flash })), !reacted && /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement(CreationExperimentVisual, { cfg: cfg, reacted: reacted, reacting: reacting, flash: flash })), !reacted && !reacting && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       justifyContent: "center",
@@ -1591,33 +1605,43 @@ function CreationScreen({
     text: `התכונות השתנו לגמרי! ל־${cfg.product.label} תכונות חדשות, שונות מהיסודות שיצרו אותו.`
   })));
 }
-function CreationExperimentVisual({ cfg, reacted, flash }) {
+function CreationExperimentVisual({ cfg, reacted, reacting, flash }) {
   const isCopper = cfg.id === "cus";
   return /*#__PURE__*/React.createElement("div", {
     style: { display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 34, width: "100%", position: "relative", zIndex: 2 }
   }, isCopper ? /*#__PURE__*/React.createElement(React.Fragment, null,
     /*#__PURE__*/React.createElement("div", { style: { textAlign: "center" } },
       /*#__PURE__*/React.createElement("div", { style: { width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: "linear-gradient(#e6c229,#b99600)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.18)" } }),
-      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue } }, "גופרית צהובה")
+      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: AMIT.darkBlue } }, "גופרית צהובה")
     ),
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 150, height: 190 } },
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 48, top: 8, width: 54, height: 128, border: "4px solid #9eb0c1", borderTop: "none", borderRadius: "0 0 26px 26px", transform: "rotate(-8deg)", background: reacted ? "linear-gradient(#35343a,#111218)" : "linear-gradient(#e5bb2d 0 45%,#b96a3c 45% 100%)", transition: "background .5s" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 48, top: 8, width: 54, height: 128, border: "4px solid #9eb0c1", borderTop: "none", borderRadius: "0 0 26px 26px", transform: "rotate(-8deg)", background: "rgba(255,255,255,.35)", overflow: "hidden", boxShadow: "inset 3px 0 5px rgba(255,255,255,.7)" } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, bottom: 3, height: "78%", borderRadius: "0 0 20px 20px", background: "linear-gradient(#e5bb2d 0 45%,#b96a3c 45% 100%)" } }),
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, bottom: 3, height: "78%", borderRadius: "0 0 20px 20px", background: "#5b321f", opacity: reacted ? 1 : reacting ? .72 : 0, transition: reacting ? "opacity 3s ease-in-out" : "opacity .4s" } })
+      ),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 54, bottom: 0, width: 42, height: 70, background: "linear-gradient(#ffdb55,#e95d25)", clipPath: "polygon(50% 0,100% 70%,72% 100%,28% 100%,0 70%)", filter: flash ? "drop-shadow(0 0 18px white)" : "drop-shadow(0 0 8px #ff9b3d)" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: -2, left: 18, right: 18, height: 10, borderRadius: 8, background: "#52677b" } })
     ),
     /*#__PURE__*/React.createElement("div", { style: { textAlign: "center" } },
-      /*#__PURE__*/React.createElement("div", { style: { width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: reacted ? "#24242a" : "linear-gradient(#cf7b4b,#9d4f28)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.2)" } }),
-      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue } }, reacted ? "גופרת נחושת שחורה" : "נחושת כתומה")
+      /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: "linear-gradient(#cf7b4b,#9d4f28)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.2)", overflow: "hidden" } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", inset: 0, background: "#5b321f", opacity: reacted ? 1 : reacting ? .72 : 0, transition: reacting ? "opacity 3s ease-in-out" : "opacity .4s" } })
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: AMIT.darkBlue } }, reacted ? "מוצק בצבע חום כהה" : reacting ? "התגובה מתרחשת..." : "נחושת כתומה")
     )
   ) : /*#__PURE__*/React.createElement(React.Fragment, null,
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 280, height: 190 } },
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 28, left: 28, width: 185, height: 10, borderRadius: 8, background: reacted ? "#f7f7f7" : "linear-gradient(90deg,#aeb6c0,#eef1f4,#9ca6b1)", transform: "rotate(-11deg)", boxShadow: reacted ? "0 0 24px 12px rgba(255,255,255,.95)" : "none", transition: "all .45s" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 18, right: 16, width: 78, height: 28, border: "8px solid #44586c", borderLeft: "none", borderRadius: "0 18px 18px 0" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 92, bottom: 18, width: 50, height: 82, background: "linear-gradient(#fff56b,#ff9a2e,#e34f22)", clipPath: "polygon(50% 0,100% 72%,70% 100%,30% 100%,0 72%)", filter: flash ? "drop-shadow(0 0 26px white)" : "drop-shadow(0 0 9px #ff9b3d)" } }),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: 6, left: 68, width: 98, height: 24, borderRadius: "12px 12px 4px 4px", background: "#52677b" } }),
-      reacted && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 5, bottom: 3, width: 86, height: 40, borderRadius: "50% 50% 14px 14px", background: "#f5f5f2", boxShadow: "inset 0 -7px 10px rgba(0,0,0,.12)" } })
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: 6, left: 68, width: 98, height: 24, borderRadius: "12px 12px 4px 4px", background: "#52677b" } })
     ),
-    /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, color: reacted ? "#fff" : AMIT.darkBlue, fontSize: 19, minWidth: 190 } }, reacted ? "נוצרה אבקה לבנה של מגנזיום חמצני" : "פס מגנזיום נשרף באור לבן חזק")
+    /*#__PURE__*/React.createElement("div", { style: { minWidth: 220, textAlign: "center" } },
+      reacted && /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 118, height: 48, margin: "0 auto 12px" } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", inset: "8px 0 0", border: "3px solid rgba(126,159,183,.72)", borderRadius: "50%", background: "rgba(225,241,250,.28)", boxShadow: "inset 0 -7px 12px rgba(104,139,164,.16), 0 4px 8px rgba(50,80,105,.14)" } }),
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 22, right: 22, top: 16, height: 22, borderRadius: "50%", background: "radial-gradient(ellipse at 50% 35%,#fff 0 35%,#f3f3ee 65%,#deded7 100%)", boxShadow: "0 2px 5px rgba(70,80,85,.16)" } })
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, color: AMIT.darkBlue, fontSize: 19 } }, reacted ? "נוצרה אבקה לבנה של מגנזיום חמצני" : "פס מגנזיום נשרף באור לבן חזק")
+    )
   ));
 }
 function Pile({
@@ -1770,25 +1794,29 @@ function WaterVisual(done, anim) {
       position: "absolute", bottom: 18 + (i % 4) * 18, left: side === "left" ? 30 + (i % 3) * 9 : 126 + (i % 2) * 10, width: 7 + i % 3, height: 7 + i % 3, borderRadius: "50%", border: `2px solid ${color}`, background: "rgba(255,255,255,.75)", animation: `rise 1.25s ${i * .09}s infinite ease-in`
     }
   }));
-  return /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 20, width: "100%" } },
+  return /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" } },
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 220, height: 180 } },
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 18, right: 18, bottom: 0, height: 132, border: "4px solid #9fc0dd", borderTop: "none", borderRadius: "0 0 18px 18px", background: "linear-gradient(to bottom,rgba(255,255,255,.35) 0 18%,#a9d7f2 18% 100%)", overflow: "hidden" } },
         /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 8, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#2a6a9c" } }, "מים"),
         (anim || done) && bubbles("left", 12, "#62aee8"),
         (anim || done) && bubbles("right", 6, "#e87667")
       ),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 58, top: 18, width: 12, height: 118, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)" } }),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 58, top: 18, width: 12, height: 118, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 38, top: 12, width: 54, height: 120, border: "3px solid #b7c6d6", borderBottom: "none", borderRadius: "25px 25px 0 0", background: "rgba(245,249,253,.35)", overflow: "hidden", zIndex: 2 } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: done ? "24%" : "100%", background: "#cfe8ff", transition: "height 1.2s ease" } }),
+        /*#__PURE__*/React.createElement("span", { style: { position: "absolute", top: 10, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#235d8a", fontSize: 13 } }, "H₂")
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 38, top: 12, width: 54, height: 120, border: "3px solid #b7c6d6", borderBottom: "none", borderRadius: "25px 25px 0 0", background: "rgba(245,249,253,.35)", overflow: "hidden", zIndex: 2 } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: done ? "60%" : "100%", background: "#ffd9d3", transition: "height 1.2s ease" } }),
+        /*#__PURE__*/React.createElement("span", { style: { position: "absolute", top: 10, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#a54238", fontSize: 13 } }, "O₂")
+      ),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 59, top: 54, width: 12, height: 82, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 3 } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 59, top: 54, width: 12, height: 82, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 3 } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #d04d45", borderLeft: "4px solid #d04d45", borderRadius: "14px 0 0 0" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #263d59", borderRight: "4px solid #263d59", borderRadius: "0 14px 0 0" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 36, top: -6, fontSize: 13, fontWeight: 800, color: "#d04d45" } }, "+"),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 36, top: -6, fontSize: 16, fontWeight: 800, color: "#263d59" } }, "−"),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 35, bottom: 5, fontSize: 12, fontWeight: 800, color: "#235d8a" } }, "H₂"),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 37, bottom: 5, fontSize: 12, fontWeight: 800, color: "#a54238" } }, "O₂")
-    ),
-    done && /*#__PURE__*/React.createElement("div", { style: { display: "flex", gap: 14, alignItems: "flex-end", animation: "popIn .5s ease both" } },
-      /*#__PURE__*/React.createElement(GasTube, { label: "H₂", fill: 80, color: "#cfe8ff", note: "מימן — פי 2" }),
-      /*#__PURE__*/React.createElement(GasTube, { label: "O₂", fill: 42, color: "#ffd9d3", note: "חמצן" })
+      done && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 25, top: 0, fontSize: 11, fontWeight: 800, color: "#235d8a" } }, "מימן — פי 2"),
+      done && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 28, top: 0, fontSize: 11, fontWeight: 800, color: "#a54238" } }, "חמצן")
     )
   );
 }
@@ -2534,7 +2562,7 @@ const SIMPLE_COMPOUNDS = [{
 
 const CREATION_1 = {
   id: "cus",
-  title: "יצירת תרכובת: גופרת נחושת",
+  title: "יצירת נחושת גופרתית",
   a: {
     label: "נחושת",
     sym: "Cu",
@@ -2548,21 +2576,21 @@ const CREATION_1 = {
   product: {
     label: "גופרת נחושת (CuS)",
     sym: "CuS",
-    color: "#2c2c33"
+    color: "#5b321f"
   },
   flashColor: "rgba(255,180,60,.8)",
   cells: [{
     id: "color",
     prop: "צבע",
-    rawText: "נחושת כתומה־מבריקה · גופרית צהובה",
-    answer: "שחור־כהה"
+    rawText: "נחושת כתומה · גופרית צהובה",
+    answer: "מוצק בצבע חום כהה"
   }, {
     id: "look",
     prop: "מראה",
-    rawText: "נחושת מבריקה ומוליכה",
-    answer: "עמום ופריך"
+    rawText: "נחושת מבריקה ומוליכה · גופרית: אבקה צהובה",
+    answer: "מוצק בצבע חום כהה"
   }],
-  tags: ["שחור־כהה", "עמום ופריך", "כתום מבריק", "צהוב בהיר"]
+  tags: ["מוצק בצבע חום כהה", "שחור־כהה", "כתום מבריק", "צהוב בהיר"]
 };
 const CREATION_2 = {
   id: "mgo",
