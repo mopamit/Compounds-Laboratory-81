@@ -1476,7 +1476,45 @@ function CreationScreen({
       showFb("התגובה הושלמה! ✨", true);
     }, 3000);
   };
-  const allCellsRight = cfg.cells.every(c => cells[c.id] === c.answer);
+  const singleProductCell = cfg.id === "cus";
+  const allCellsRight = singleProductCell ? cells.product === cfg.cells[0].answer : cfg.cells.every(c => cells[c.id] === c.answer);
+  const renderProductDrop = (c, cellId, extraStyle = {}) => /*#__PURE__*/React.createElement(DropZone, {
+    id: `cell-${cfg.id}-${cellId}`,
+    onDrop: (id, val) => {
+      if (val === c.answer) {
+        setCells(s => ({
+          ...s,
+          [cellId]: val
+        }));
+        sound(true);
+      } else {
+        setErred(true);
+        sound(false);
+        setShakeCell(cellId);
+        showFb("לא מדויק, נסו תכונה אחרת", false);
+        setTimeout(() => setShakeCell(null), 500);
+      }
+    },
+    style: {
+      minHeight: 46,
+      borderRadius: 12,
+      background: cells[cellId] ? "#eef7f0" : "#f4f8fc",
+      border: `2px solid ${cells[cellId] ? AMIT.green : "#dbe5ef"}`,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: 6,
+      fontWeight: 700,
+      color: AMIT.darkGreen,
+      animation: shakeCell === cellId ? "shake .5s" : "none",
+      ...extraStyle
+    }
+  }, cells[cellId] || /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "#9fb0c0",
+      fontSize: 22
+    }
+  }, "?"));
   useEffect(() => {
     if (reacted && allCellsRight && !rewarded) {
       setRewarded(true);
@@ -1506,7 +1544,7 @@ function CreationScreen({
       transition: "background .5s",
       overflow: "hidden"
     }
-  }, flash && /*#__PURE__*/React.createElement("div", {
+  }, flash && cfg.id !== "cus" && /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
       inset: 0,
@@ -1550,44 +1588,9 @@ function CreationScreen({
       gap: 8,
       alignItems: "center"
     }
-  }, /*#__PURE__*/React.createElement(Th, null), /*#__PURE__*/React.createElement(Th, null, "חומרי הגלם"), /*#__PURE__*/React.createElement(Th, null, "התוצר"), cfg.cells.map(c => /*#__PURE__*/React.createElement(React.Fragment, {
+  }, /*#__PURE__*/React.createElement(Th, null), /*#__PURE__*/React.createElement(Th, null, "חומרי הגלם"), /*#__PURE__*/React.createElement(Th, null, "התוצר"), cfg.cells.map((c, index) => /*#__PURE__*/React.createElement(React.Fragment, {
     key: c.id
-  }, /*#__PURE__*/React.createElement(RowLabel, null, c.prop), /*#__PURE__*/React.createElement(ReadCell, null, c.rawText), /*#__PURE__*/React.createElement(DropZone, {
-    id: `cell-${cfg.id}-${c.id}`,
-    onDrop: (id, val) => {
-      if (val === c.answer) {
-        setCells(s => ({
-          ...s,
-          [c.id]: val
-        }));
-        sound(true);
-      } else {
-        setErred(true);
-        sound(false);
-        setShakeCell(c.id);
-        showFb("לא מדויק, נסו תכונה אחרת", false);
-        setTimeout(() => setShakeCell(null), 500);
-      }
-    },
-    style: {
-      minHeight: 46,
-      borderRadius: 12,
-      background: cells[c.id] ? "#eef7f0" : "#f4f8fc",
-      border: `2px solid ${cells[c.id] ? AMIT.green : "#dbe5ef"}`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: 6,
-      fontWeight: 700,
-      color: AMIT.darkGreen,
-      animation: shakeCell === c.id ? "shake .5s" : "none"
-    }
-  }, cells[c.id] || /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: "#9fb0c0",
-      fontSize: 22
-    }
-  }, "?"))))), !allCellsRight && /*#__PURE__*/React.createElement("div", {
+  }, /*#__PURE__*/React.createElement(RowLabel, null, c.prop), /*#__PURE__*/React.createElement(ReadCell, null, c.rawText), (!singleProductCell || index === 0) && renderProductDrop(c, singleProductCell ? "product" : c.id, singleProductCell ? { gridRow: "span 2", minHeight: 100 } : {})))), !allCellsRight && /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 10,
@@ -1617,16 +1620,15 @@ function CreationExperimentVisual({ cfg, reacted, reacting, flash }) {
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 150, height: 190 } },
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 48, top: 8, width: 54, height: 128, border: "4px solid #9eb0c1", borderTop: "none", borderRadius: "0 0 26px 26px", transform: "rotate(-8deg)", background: "rgba(255,255,255,.35)", overflow: "hidden", boxShadow: "inset 3px 0 5px rgba(255,255,255,.7)" } },
         /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, bottom: 3, height: "78%", borderRadius: "0 0 20px 20px", background: "linear-gradient(#e5bb2d 0 45%,#b96a3c 45% 100%)" } }),
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, bottom: 3, height: "78%", borderRadius: "0 0 20px 20px", background: "#5b321f", opacity: reacted ? 1 : reacting ? .72 : 0, transition: reacting ? "opacity 3s ease-in-out" : "opacity .4s" } })
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, bottom: 3, height: "78%", borderRadius: "0 0 20px 20px", background: "#5b321f", opacity: reacted || reacting ? 1 : 0, transition: "opacity 3s ease-in-out" } }),
+        reacting && [...Array(7)].map((_, i) => /*#__PURE__*/React.createElement("div", { key: i, style: { position: "absolute", left: 9 + i % 3 * 11, bottom: 15 + i % 4 * 17, width: 5 + i % 2 * 2, height: 5 + i % 2 * 2, borderRadius: "50%", border: "1px solid rgba(255,225,190,.75)", background: "rgba(255,255,255,.2)", animation: `rise 1.4s ${i * .16}s infinite ease-in` } }))
       ),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 54, bottom: 0, width: 42, height: 70, background: "linear-gradient(#ffdb55,#e95d25)", clipPath: "polygon(50% 0,100% 70%,72% 100%,28% 100%,0 70%)", filter: flash ? "drop-shadow(0 0 18px white)" : "drop-shadow(0 0 8px #ff9b3d)" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: -2, left: 18, right: 18, height: 10, borderRadius: 8, background: "#52677b" } })
     ),
     /*#__PURE__*/React.createElement("div", { style: { textAlign: "center" } },
-      /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: "linear-gradient(#cf7b4b,#9d4f28)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.2)", overflow: "hidden" } },
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", inset: 0, background: "#5b321f", opacity: reacted ? 1 : reacting ? .72 : 0, transition: reacting ? "opacity 3s ease-in-out" : "opacity .4s" } })
-      ),
-      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: AMIT.darkBlue } }, reacted ? "מוצק בצבע חום כהה" : reacting ? "התגובה מתרחשת..." : "נחושת כתומה")
+      /*#__PURE__*/React.createElement("div", { style: { width: 92, height: 42, borderRadius: "50% 50% 16px 16px", background: "linear-gradient(#cf7b4b,#9d4f28)", boxShadow: "inset 0 -8px 10px rgba(0,0,0,.2)" } }),
+      /*#__PURE__*/React.createElement("div", { style: { marginTop: 8, fontWeight: 800, color: AMIT.darkBlue } }, "נחושת כתומה")
     )
   ) : /*#__PURE__*/React.createElement(React.Fragment, null,
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 280, height: 190 } },
@@ -1636,9 +1638,11 @@ function CreationExperimentVisual({ cfg, reacted, reacting, flash }) {
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: 6, left: 68, width: 98, height: 24, borderRadius: "12px 12px 4px 4px", background: "#52677b" } })
     ),
     /*#__PURE__*/React.createElement("div", { style: { minWidth: 220, textAlign: "center" } },
-      reacted && /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 118, height: 48, margin: "0 auto 12px" } },
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", inset: "8px 0 0", border: "3px solid rgba(126,159,183,.72)", borderRadius: "50%", background: "rgba(225,241,250,.28)", boxShadow: "inset 0 -7px 12px rgba(104,139,164,.16), 0 4px 8px rgba(50,80,105,.14)" } }),
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 22, right: 22, top: 16, height: 22, borderRadius: "50%", background: "radial-gradient(ellipse at 50% 35%,#fff 0 35%,#f3f3ee 65%,#deded7 100%)", boxShadow: "0 2px 5px rgba(70,80,85,.16)" } })
+      reacted && /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 154, height: 66, margin: "0 auto 10px" } },
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, top: 8, height: 45, border: "3px solid rgba(92,139,169,.78)", borderRadius: "50%", background: "rgba(228,244,253,.3)", boxShadow: "inset 0 -9px 14px rgba(82,125,153,.16), 0 5px 10px rgba(48,78,100,.18)" } }),
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 25, right: 25, top: 22, height: 28, borderRadius: "50%", background: "radial-gradient(ellipse at 50% 30%,#fff 0 32%,#f4f4ef 56%,#d9d9d1 100%)", boxShadow: "0 2px 6px rgba(60,70,75,.22)" } }),
+        [...Array(11)].map((_, i) => /*#__PURE__*/React.createElement("span", { key: i, style: { position: "absolute", left: 42 + i % 5 * 14, top: 28 + i % 3 * 5, width: 4 + i % 2, height: 3 + i % 2, borderRadius: "50%", background: i % 3 === 0 ? "#d6d6cf" : "#fff", boxShadow: "0 1px 1px rgba(80,80,75,.12)" } })),
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 3, right: 3, top: 27, height: 31, borderBottom: "4px solid rgba(82,128,158,.82)", borderRadius: "0 0 50% 50%", pointerEvents: "none" } })
       ),
       /*#__PURE__*/React.createElement("div", { style: { fontWeight: 800, color: AMIT.darkBlue, fontSize: 19 } }, reacted ? "נוצרה אבקה לבנה של מגנזיום חמצני" : "פס מגנזיום נשרף באור לבן חזק")
     )
@@ -1788,35 +1792,71 @@ function DecompScreen({
 
 /* water electrolysis visual */
 function WaterVisual(done, anim) {
-  const bubbles = (side, count, color) => [...Array(count)].map((_, i) => /*#__PURE__*/React.createElement("div", {
+  const tubeBubbles = side => (anim || done) && [...Array(side === "left" ? 8 : 5)].map((_, i) => /*#__PURE__*/React.createElement("span", {
     key: `${side}-${i}`,
     style: {
-      position: "absolute", bottom: 18 + (i % 4) * 18, left: side === "left" ? 30 + (i % 3) * 9 : 126 + (i % 2) * 10, width: 7 + i % 3, height: 7 + i % 3, borderRadius: "50%", border: `2px solid ${color}`, background: "rgba(255,255,255,.75)", animation: `rise 1.25s ${i * .09}s infinite ease-in`
+      position: "absolute",
+      left: 7 + i % 3 * 7,
+      bottom: 7 + i % 5 * 15,
+      width: 5 + i % 2 * 2,
+      height: 5 + i % 2 * 2,
+      borderRadius: "50%",
+      border: "1.5px solid rgba(66,137,185,.72)",
+      background: "rgba(255,255,255,.65)",
+      animation: `rise 1.25s ${i * .11}s infinite ease-in`
     }
   }));
+  const invertedTube = (side, label, waterHeight) => /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: side === "left" ? 48 : 138,
+      top: 30,
+      width: 34,
+      height: 100,
+      border: "3px solid #b7c6d6",
+      borderBottom: "none",
+      borderRadius: "10px 10px 0 0",
+      overflow: "hidden",
+      background: "rgba(245,249,253,.72)",
+      zIndex: 3,
+      boxShadow: "inset 2px 0 3px rgba(255,255,255,.65)"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: done ? waterHeight : "100%",
+      background: "rgba(169,215,242,.88)",
+      transition: "height 1.2s ease"
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      position: "absolute",
+      top: 6,
+      left: 0,
+      right: 0,
+      textAlign: "center",
+      fontWeight: 800,
+      color: side === "left" ? "#235d8a" : "#a54238",
+      fontSize: 12,
+      zIndex: 2
+    }
+  }, label), tubeBubbles(side));
   return /*#__PURE__*/React.createElement("div", { style: { display: "flex", alignItems: "flex-end", justifyContent: "center", width: "100%" } },
     /*#__PURE__*/React.createElement("div", { style: { position: "relative", width: 220, height: 180 } },
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 18, right: 18, bottom: 0, height: 132, border: "4px solid #9fc0dd", borderTop: "none", borderRadius: "0 0 18px 18px", background: "linear-gradient(to bottom,rgba(255,255,255,.35) 0 18%,#a9d7f2 18% 100%)", overflow: "hidden" } },
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", top: 8, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#2a6a9c" } }, "מים"),
-        (anim || done) && bubbles("left", 12, "#62aee8"),
-        (anim || done) && bubbles("right", 6, "#e87667")
+        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", bottom: 7, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#2a6a9c" } }, "מים")
       ),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 38, top: 12, width: 54, height: 120, border: "3px solid #b7c6d6", borderBottom: "none", borderRadius: "25px 25px 0 0", background: "rgba(245,249,253,.35)", overflow: "hidden", zIndex: 2 } },
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: done ? "24%" : "100%", background: "#cfe8ff", transition: "height 1.2s ease" } }),
-        /*#__PURE__*/React.createElement("span", { style: { position: "absolute", top: 10, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#235d8a", fontSize: 13 } }, "H₂")
-      ),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 38, top: 12, width: 54, height: 120, border: "3px solid #b7c6d6", borderBottom: "none", borderRadius: "25px 25px 0 0", background: "rgba(245,249,253,.35)", overflow: "hidden", zIndex: 2 } },
-        /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 0, right: 0, bottom: 0, height: done ? "60%" : "100%", background: "#ffd9d3", transition: "height 1.2s ease" } }),
-        /*#__PURE__*/React.createElement("span", { style: { position: "absolute", top: 10, left: 0, right: 0, textAlign: "center", fontWeight: 800, color: "#a54238", fontSize: 13 } }, "O₂")
-      ),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 59, top: 54, width: 12, height: 82, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 3 } }),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 59, top: 54, width: 12, height: 82, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 3 } }),
+      invertedTube("left", "H₂", "25%"),
+      invertedTube("right", "O₂", "62%"),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 59, top: 68, width: 12, height: 68, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 4 } }),
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 59, top: 68, width: 12, height: 68, borderRadius: 6, background: "#4b5662", boxShadow: "inset 2px 0 2px rgba(255,255,255,.35)", zIndex: 4 } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #d04d45", borderLeft: "4px solid #d04d45", borderRadius: "14px 0 0 0" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 10, top: 0, width: 54, height: 34, borderTop: "4px solid #263d59", borderRight: "4px solid #263d59", borderRadius: "0 14px 0 0" } }),
       /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 36, top: -6, fontSize: 13, fontWeight: 800, color: "#d04d45" } }, "+"),
-      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 36, top: -6, fontSize: 16, fontWeight: 800, color: "#263d59" } }, "−"),
-      done && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", left: 25, top: 0, fontSize: 11, fontWeight: 800, color: "#235d8a" } }, "מימן — פי 2"),
-      done && /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 28, top: 0, fontSize: 11, fontWeight: 800, color: "#a54238" } }, "חמצן")
+      /*#__PURE__*/React.createElement("div", { style: { position: "absolute", right: 36, top: -6, fontSize: 16, fontWeight: 800, color: "#263d59" } }, "−")
     )
   );
 }
